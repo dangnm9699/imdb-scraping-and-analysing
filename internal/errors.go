@@ -7,3 +7,9 @@ func CheckErr(err error, msg string) {
 		logger.Error.Fatalln(msg, ":", err)
 	}
 }
+
+func CheckNil(ptr interface{}, msg string) {
+	if ptr == nil {
+		logger.Error.Fatalln(msg)
+	}
+}

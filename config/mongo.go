@@ -12,9 +12,6 @@ import (
 	"time"
 )
 
-var (
-	client *mongo.Client
-)
 
 type MongoConfig struct {
 	Host     string `env:"MONGO_HOST" envDefault:"localhost"`
@@ -32,18 +29,14 @@ func getMongoConfig() *MongoConfig {
 	return config
 }
 
-func GetDB() *mongo.Client {
-	return client
-}
-
-func Connect2MongoDB() {
+func Connect2MongoDB() *mongo.Client {
 	config := getMongoConfig()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	var err error
-	client, err = mongo.Connect(ctx, options.Client().ApplyURI(config.getURI()))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.getURI()))
 	internal.CheckErr(err, "while connect to mongodb")
 	err = client.Ping(ctx, readpref.Primary())
 	internal.CheckErr(err,"while checking connection to mongodb")
 	logger.Debug.Println("MongoDB connected")
+	return client
 }

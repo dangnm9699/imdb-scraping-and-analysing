@@ -1,5 +1,0 @@
-package crawler
-
-func Exec() {
-
-}

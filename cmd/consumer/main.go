@@ -1,5 +1,0 @@
-package consumer
-
-func Exec() {
-
-}

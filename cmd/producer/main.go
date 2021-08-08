@@ -1,5 +1,0 @@
-package producer
-
-func Exec() {
-
-}

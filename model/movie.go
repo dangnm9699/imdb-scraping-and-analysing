@@ -1,17 +1,24 @@
 package model
 
 type Movie struct {
-	Tconst         string `json:"tconst" bson:"tconst"`
-	Name           string `json:"name" bson:"name"`
-	ReleasedYear   string `json:"released_year" bson:"released_year"`
-	Rating         string `json:"rating" bson:"rating"`
-	RatingCount    string `json:"rating_count" bson:"rating_count"`
-	Runtime        string `json:"runtime" bson:"runtime"`
-	Genres         string `json:"genres" bson:"genres"`
-	Budget         string `json:"budget" bson:"budget"`
-	GrossWorldwide string `json:"gross_worldwide" bson:"gross_worldwide"`
-	Director       string `json:"director" bson:"director"`
-	Stars          string `json:"stars" bson:"stars"`
-	Country        string `json:"country" bson:"country"`
-	StoryLine      string `json:"story_line" bson:"story_line"`
+	Url             string          `json:"url,omitempty" bson:"url"`
+	Name            string          `json:"name,omitempty" bson:"name"`
+	AlternateName   string          `json:"alternateName,omitempty" bson:"alternateName"`
+	Image           string          `json:"image,omitempty" bson:"image"`
+	ContentRating   string          `json:"contentRating,omitempty" bson:"contentRating"`
+	Genre           []string        `json:"genre,omitempty" bson:"genre"`
+	Actor           []Object        `json:"actor,omitempty" bson:"actor"`
+	Director        []Object        `json:"director,omitempty" bson:"director"`
+	Creator         []Object        `json:"creator,omitempty" bson:"creator"`
+	Trailer         Trailer         `json:"trailer,omitempty" bson:"trailer"`
+	DatePublished   string          `json:"datePublished,omitempty" bson:"datePublished"`
+	Description     string          `json:"description,omitempty" bson:"description"`
+	Keywords        string          `json:"keywords,omitempty" bson:"keywords"`
+	AggregateRating AggregateRating `json:"aggregateRating,omitempty" bson:"aggregateRating"`
+	Duration        string          `json:"duration,omitempty" bson:"duration"`
+}
+
+type MovieMsg struct {
+	Url string
+	Raw string
 }
