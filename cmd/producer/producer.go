@@ -6,6 +6,7 @@ import (
 	"adlq/model"
 	"context"
 	"log"
+	"sync/atomic"
 	"time"
 
 	"github.com/gocolly/colly"
@@ -42,7 +43,7 @@ func startProducer() {
 		ReadTimeout:  0,
 		WriteTimeout: 0,
 		RequiredAcks: 0,
-		Async:        false,
+		Async:        true,
 		Completion:   nil,
 		Compression:  0,
 		Logger:       nil,
@@ -56,14 +57,18 @@ func startProducer() {
 			Key:   []byte(movie.Url),
 			Value: []byte(movie.Raw),
 		}
-		if err := producer.WriteMessages(context.Background(), msg); err != nil {
-			logger.Debug.Printf("Movie{url=%s} written to kafka failed\n", movie.Url)
-		}
+		go func() {
+			if err := producer.WriteMessages(context.Background(), msg); err != nil {
+				logger.Debug.Printf("Movie{url=%s} written to kafka failed\n", movie.Url)
+			} else {
+				logger.Debug.Printf("Movie{url=%s} written to kafka\n", movie.Url)
+			}
+		}()
 	}
 }
 
 func startCrawler() {
-	//var count int64 = 0
+	var count int64 = 0
 	// start producing
 	c1 := colly.NewCollector()
 	c2 := colly.NewCollector(
@@ -71,20 +76,19 @@ func startCrawler() {
 		colly.Async(true),
 	)
 
-	_ = c2.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 2, Delay: 1000 * time.Millisecond})
+	_ = c2.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 4, Delay: 1500 * time.Millisecond})
 
 	c1.OnHTML("h3.lister-item-header > a[href]", func(element *colly.HTMLElement) {
 		_ = c2.Visit("https://www.imdb.com" + element.Attr("href"))
 	})
 
 	c1.OnHTML("a.lister-page-next", func(element *colly.HTMLElement) {
-		_ = c1.Visit("https://www.imdb.com" + element.Attr("href"))
+		url := element.Attr("href")
+		_ = c1.Visit("https://www.imdb.com" + url)
 	})
 
 	c2.OnHTML(`script[type="application/ld+json"]`, func(element *colly.HTMLElement) {
-		logger.Debug.Printf("Crawling %s\n", element.Request.URL.String())
-		log.Printf("Crawling %s\n", element.Request.URL.String())
-		// log.Println(element.Text)
+		log.Printf("|| %6d || Crawling %s\n", atomic.AddInt64(&count, 1), element.Request.URL.String())
 		movie := model.MovieMsg{
 			Url: element.Request.URL.String(),
 			Raw: element.Text,
@@ -92,10 +96,11 @@ func startCrawler() {
 		movieChan <- movie
 	})
 
-	// _ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=,1910-12-31&sort=year,asc")
-	_ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=1911-01-01,1920-12-31&sort=year,asc")
+	// _ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=,1910-12-31&sort=year,asc") // ~ - 1910
+	_ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=1911-01-01,1920-12-31&sort=year,asc") // 1911 - 1920
 
-	c1.Wait()
 	c2.Wait()
-	time.Sleep(time.Second)
+	time.Sleep(10 * time.Second)
+	log.Println("OUT")
+	logger.Debug.Println("======== FINISH SESSION ========")
 }

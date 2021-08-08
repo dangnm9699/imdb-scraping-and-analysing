@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"log"
 	"strings"
+	"sync/atomic"
 
 	"github.com/segmentio/kafka-go"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,6 +23,7 @@ var (
 	topic    string
 	groupID  string
 	upsert   = true
+	count    int64
 )
 
 func init() {
@@ -44,7 +46,7 @@ func startConsumer() {
 		Brokers:  brokers,
 		GroupID:  groupID,
 		Topic:    topic,
-		MinBytes: 10,
+		MinBytes: 1,
 		MaxBytes: 10e8,
 	})
 	// start consuming
@@ -54,7 +56,6 @@ func startConsumer() {
 			logger.Debug.Println("Error")
 			continue
 		}
-		log.Println(string(m.Key))
 		go process(string(m.Key), string(m.Value))
 	}
 }
@@ -72,6 +73,8 @@ func process(key, raw string) {
 		&options.ReplaceOptions{Upsert: &upsert},
 	); err != nil {
 		logger.Debug.Printf("Movie{url=%s} saved failed\n", movie.Url)
+	} else {
+		log.Println(atomic.AddInt64(&count, 1), string(key))
+		logger.Info.Printf("Movie{url=%s} saved\n", movie.Url)
 	}
-	logger.Info.Printf("Movie{url=%s} saved\n", movie.Url)
 }
