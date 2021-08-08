@@ -5,10 +5,11 @@ import (
 	"adlq/logger"
 	"adlq/model"
 	"context"
-	"github.com/gocolly/colly"
-	"github.com/segmentio/kafka-go"
 	"log"
 	"time"
+
+	"github.com/gocolly/colly"
+	"github.com/segmentio/kafka-go"
 )
 
 var (
@@ -70,7 +71,7 @@ func startCrawler() {
 		colly.Async(true),
 	)
 
-	_ = c2.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 4, Delay: 1200 * time.Millisecond})
+	_ = c2.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 2, Delay: 1000 * time.Millisecond})
 
 	c1.OnHTML("h3.lister-item-header > a[href]", func(element *colly.HTMLElement) {
 		_ = c2.Visit("https://www.imdb.com" + element.Attr("href"))
@@ -83,6 +84,7 @@ func startCrawler() {
 	c2.OnHTML(`script[type="application/ld+json"]`, func(element *colly.HTMLElement) {
 		logger.Debug.Printf("Crawling %s\n", element.Request.URL.String())
 		log.Printf("Crawling %s\n", element.Request.URL.String())
+		// log.Println(element.Text)
 		movie := model.MovieMsg{
 			Url: element.Request.URL.String(),
 			Raw: element.Text,
@@ -90,15 +92,10 @@ func startCrawler() {
 		movieChan <- movie
 	})
 
-	c1.OnRequest(func(request *colly.Request) {
-		request.Headers.Set("Content-Language", "en")
-	})
-
-	c2.OnRequest(func(request *colly.Request) {
-		request.Headers.Set("Content-Language", "en")
-	})
-
-	_ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=,2000-12-31")
+	// _ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=,1910-12-31&sort=year,asc")
+	_ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=1911-01-01,1920-12-31&sort=year,asc")
 
 	c1.Wait()
+	c2.Wait()
+	time.Sleep(time.Second)
 }
