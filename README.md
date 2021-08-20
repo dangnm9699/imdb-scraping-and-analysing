@@ -4,20 +4,20 @@ Big data storage and processing / HUST / 20201
 
 ## How to run
 
-**Điều kiện tiên quyết**
+**Prerequisites**
 
 - Docker
 - Docker Compose
 - MongoDB
 
-1. Cài đặt và khởi chạy Kafka
+1. Kafka Setup
 
-- Khởi chạy docker-compose.yml
+- Run docker-compose.yml
   ```shell
     $ cd deployment
     $ docker-compose -f docker-compose.yml up -d
   ```
-- Exec vào container kafka để tạo topic
+- Exec into kafka container to create topic
   ```shell
     $ docker exec -it kafka /bin/sh
     $ cd opt
@@ -25,7 +25,7 @@ Big data storage and processing / HUST / 20201
     $ cd kafka
     $ cd bin
   ```
-- Để tạo/xóa topic
+- Create/Delete topic
   ```shell
   # tạo
   kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic movie
@@ -33,31 +33,62 @@ Big data storage and processing / HUST / 20201
   kafka-topics.sh --delete --zookeeper zookeeper:2181 --topic movie
   ```
 
-3. Khởi chạy Consumer
+3. Consumer Setup
 
-_Nhớ chỉnh sửa `kafkaUrl` và `topic` cho phù hợp với địa chỉ IP của máy và topic bạn đặt ở trên_
+* Usage:
 
-```shell
-$ go run adlq -mode=0
-```
+    ```text
+    Start consumer that get message from kafka and store into mongodb.
+    
+    Usage:
+      adlq consumer [flags]
+    
+    Flags:
+          --brokers string     kafka broker address list, separated by comma
+      -h, --help               help for consumer
+          --mongo-co string    specify mongodb collection (default "movies")
+          --mongo-db string    specify mongodb database (default "imdb")
+          --mongo-uri string   mongodb connection uri (default "mongodb://localhost:27017")
+          --topic string       kafka topic
+    
+    Global Flags:
+          --config string   config file (default is $HOME/.adlq.yaml)
+    ```
 
-4. Khởi chạy Producer
+* Run:
 
-**File: `cmd/producer/producer.go`**
+    ```shell
+    go run main.go consumer [flags]
+    ```
 
-* _Nhớ chỉnh sửa `kafkaUrl` và `topic` cho phù hợp với địa chỉ IP của máy và topic bạn đặt ở trên_
+4. Producer Setup
 
-* _Có thể chỉnh sửa `Parallelism` và `Delay`, tuy nhiên, hãy lịch sự nếu không muốn bị chặn_
+* Usage:
 
-* _Chỉ hỗ trợ crawl dữ liệu `Feature Film` tại [IMDb: Advanced Title Search](https://www.imdb.com/search/title/) nên hãy
-  nhớ chỉ tick ở `Feature Film`, chọn `Search`, sau đó copy URL đó vào `c1.Visit`_
+    ```text
+    Start producer that scrape movie data by year from imdb, and produce to kafka
+    
+    Usage:
+      adlq producer [flags]
+    
+    Flags:
+          --broker string   kafka broker address
+      -h, --help            help for producer
+          --topic string    kafka topic
+          --year int        specify year to scrape movies (default 2021)
+    
+    Global Flags:
+          --config string   config file (default is $HOME/.adlq.yaml)
+    ```
 
-```shell
-$ go run adlq -mode=1
-```
+* Run
 
-5. Cài đặt và khởi chạy MongoDB Charts
+    ```shell
+    go run main.go producer [flags]
+    ```
 
-- File `.yml` đã có sẵn trong `deployment`
-- Làm theo hướng dẫn tại [Install MongoDB Charts](https://docs.mongodb.com/charts/current/installation/)
-- Sau khi hoàn tất, mở trình duyệt và truy cập `localhost:9699`
+5. MongoDB Charts Setup
+
+- File `.yml` available in `deployment`
+- Follow the instruction at [Install MongoDB Charts](https://docs.mongodb.com/charts/current/installation/)
+- Open browser at `localhost:9699`
