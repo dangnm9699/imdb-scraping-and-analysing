@@ -6,8 +6,11 @@ import (
 )
 
 var (
+	// Info is a logger that record information
 	Info  *log.Logger
+	// Error is a logger that record errors
 	Error *log.Logger
+	// Debug is a logger that record stuff that might be helpful to debug
 	Debug *log.Logger
 )
 

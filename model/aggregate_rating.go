@@ -1,5 +1,6 @@
 package model
 
+// AggregateRating represents aggregate rating of a movie
 type AggregateRating struct {
 	Type        string  `json:"@type,omitempty" bson:"type"`
 	RatingCount int     `json:"ratingCount,omitempty" bson:"ratingCount"`

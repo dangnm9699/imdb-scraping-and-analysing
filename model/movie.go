@@ -1,5 +1,6 @@
 package model
 
+// Movie represents a movie, includes lots of information
 type Movie struct {
 	Url             string          `json:"url,omitempty" bson:"url"`
 	Name            string          `json:"name,omitempty" bson:"name"`
@@ -18,6 +19,7 @@ type Movie struct {
 	Duration        string          `json:"duration,omitempty" bson:"duration"`
 }
 
+// MovieMsg represents a message to communicate in channel
 type MovieMsg struct {
 	Url string
 	Raw string

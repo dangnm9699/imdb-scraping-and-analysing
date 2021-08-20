@@ -1,5 +1,6 @@
 package model
 
+// Trailer represents a movie trailer
 type Trailer struct {
 	Type         string `json:"@type,omitempty" bson:"type"`
 	Name         string `json:"name,omitempty" bson:"name"`
