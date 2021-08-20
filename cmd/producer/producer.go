@@ -22,7 +22,7 @@ var (
 
 func init() {
 	movieChan = make(chan model.MovieMsg, 1000)
-	kafkaUrl = "192.168.1.9:9092"
+	kafkaUrl = "192.168.1.5:9092"
 	topic = "movie"
 }
 
@@ -97,7 +97,7 @@ func startCrawler() {
 	})
 
 	// _ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=,1910-12-31&sort=year,asc") // ~ - 1910
-	_ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=1911-01-01,1920-12-31&sort=year,asc") // 1911 - 1920
+	_ = c1.Visit("https://www.imdb.com/search/title/?title_type=feature&release_date=1932-01-01,1932-12-31&sort=year,asc") // 1911 - 1920
 
 	c2.Wait()
 	time.Sleep(10 * time.Second)

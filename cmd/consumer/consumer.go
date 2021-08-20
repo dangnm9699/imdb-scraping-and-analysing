@@ -27,7 +27,7 @@ var (
 )
 
 func init() {
-	kafkaUrl = "192.168.1.9:9092"
+	kafkaUrl = "192.168.1.5:9092"
 	topic = "movie"
 }
 
