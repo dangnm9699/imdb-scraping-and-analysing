@@ -14,6 +14,7 @@ var (
 	Debug *log.Logger
 )
 
+// Set initializes loggers
 func Set() {
 	Info = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime|log.Lshortfile)
 	Error = log.New(os.Stderr, "[ERROR] ", log.Ldate|log.Ltime|log.Lshortfile)
