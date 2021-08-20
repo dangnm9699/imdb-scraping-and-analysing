@@ -2,6 +2,7 @@
 
 Big data storage and processing / HUST / 20201
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/dangnm9699/imdb-scraping-and-analysing)](https://goreportcard.com/report/github.com/dangnm9699/imdb-scraping-and-analysing)
 ## How to run
 
 **Prerequisites**
